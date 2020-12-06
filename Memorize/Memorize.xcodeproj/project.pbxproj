@@ -111,10 +111,10 @@
 			children = (
 				62545618256DFB230024980F /* MemorizeApp.swift */,
 				6254561A256DFB230024980F /* EmojiMemoryGameView.swift */,
-				62A1B322257B748400C0CE12 /* Grid.swift */,
-				62A1B32A257B822200C0CE12 /* GridLayout.swift */,
 				6283D717256FA0E80064312E /* EmojiMemoryGame.swift */,
 				6283D70F256F9E200064312E /* MemoryGame.swift */,
+				62A1B322257B748400C0CE12 /* Grid.swift */,
+				62A1B32A257B822200C0CE12 /* GridLayout.swift */,
 				62A1B332257B86EE00C0CE12 /* Array+Identifiable.swift */,
 				62A1B33A257C658B00C0CE12 /* Array+Only.swift */,
 				6254561C256DFB240024980F /* Assets.xcassets */,
