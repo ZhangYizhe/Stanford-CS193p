@@ -29,9 +29,9 @@ struct Grid<Item, ItemView>: View where Item : Identifiable, ItemView : View {
     }
     
     func body(for item: Item, in layout: GridLayout) -> some View {
-        let index = items.firstIndex(matching: item)
+        let index = items.firstIndex(matching: item)!
         return viewForItem(item)
             .frame(width: layout.itemSize.width, height: layout.itemSize.height)
-            .position(x: layout.location(ofItemAt: index).x, y: layout.location(ofItemAt: index).y)
+            .position(layout.location(ofItemAt: index))
     }
 }
