@@ -44,12 +44,68 @@ struct MemoryGame<CardContent> where CardContent : Equatable {
             cards.append(Card(content: content, id: pairIndex * 2))
             cards.append(Card(content: content, id: pairIndex * 2 + 1))
         }
+        
+        cards.shuffle()
     }
     
     struct Card : Identifiable {
-        var isFaceUp: Bool = false
-        var isMatched: Bool = false
+        var isFaceUp: Bool = false {
+            didSet {
+                if isFaceUp {
+                    startBonusTime()
+                } else {
+                    stopBonusTime()
+                }
+            }
+        }
+        var isMatched: Bool = false {
+            didSet {
+                stopBonusTime()
+            }
+        }
         var content: CardContent
         var id: Int
+        
+        var bonusTimeLimit : TimeInterval = 6
+        
+        private var faceUpTime : TimeInterval {
+            if let lastFaceUpDate = self.lastFaceUpDate {
+                return pastFaceUpTime + Date().timeIntervalSince(lastFaceUpDate)
+            } else {
+                return pastFaceUpTime
+            }
+        }
+        
+        var lastFaceUpDate : Date?
+        
+        var pastFaceUpTime : TimeInterval = 0
+        
+        var bonusTimeRemaining : TimeInterval {
+            max(0, bonusTimeLimit - faceUpTime)
+        }
+        
+        var bonusRemaining : Double {
+            (bonusTimeLimit > 0 && bonusTimeRemaining > 0) ? bonusTimeRemaining/bonusTimeLimit : 0
+        }
+        
+        var hasEarnedBonus : Bool {
+            isMatched && bonusTimeRemaining > 0
+        }
+        
+        var isConsumingBonusTime : Bool {
+            isFaceUp && !isMatched && bonusTimeRemaining > 0
+        }
+        
+        private mutating func startBonusTime() {
+            if isConsumingBonusTime, lastFaceUpDate == nil {
+                lastFaceUpDate = Date()
+            }
+        }
+        
+        private mutating func stopBonusTime() {
+            pastFaceUpTime = faceUpTime
+            self.lastFaceUpDate = nil
+        }
+        
     }
 }
