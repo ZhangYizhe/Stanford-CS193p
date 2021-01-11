@@ -28,15 +28,20 @@ struct EmojiArtDocumentView: View {
                             .scaleEffect(self.zoomScale)
                             .offset(tempSelectEmojiArr.count > 0 ? noGesturePanOffset : panOffset)
                     )
-                    ForEach(document.emojis) { emoji in
-                        Text(emoji.text)
-                            .font(animatableWithSize: emoji.fontSize * (self.isTempSlect(for: emoji) ? (zoomScale * gestureZoomScale) : zoomScale))
-                            .position(postion(for: emoji, in: geometry.size))
-                            .gesture(self.emojiTapGesture(for: emoji))
-                            .selectView(
-                                isSelect: self.isTempSlect(for: emoji),
-                                size: emoji.fontSize * (self.isTempSlect(for: emoji) ? (zoomScale * gestureZoomScale) : zoomScale),
-                                position: postion(for: emoji, in: geometry.size))
+                    if self.isLoading {
+                        Image(systemName: "hourglass").imageScale(.large)
+                            .spinning()
+                    } else {
+                        ForEach(document.emojis) { emoji in
+                            Text(emoji.text)
+                                .font(animatableWithSize: emoji.fontSize * (self.isTempSlect(for: emoji) ? (zoomScale * gestureZoomScale) : zoomScale))
+                                .position(postion(for: emoji, in: geometry.size))
+                                .gesture(self.emojiTapGesture(for: emoji))
+                                .selectView(
+                                    isSelect: self.isTempSlect(for: emoji),
+                                    size: emoji.fontSize * (self.isTempSlect(for: emoji) ? (zoomScale * gestureZoomScale) : zoomScale),
+                                    position: postion(for: emoji, in: geometry.size))
+                        }
                     }
                 }
                 .clipped()
@@ -73,6 +78,10 @@ struct EmojiArtDocumentView: View {
                 )
             }
         }
+    }
+    
+    var isLoading : Bool {
+        document.backgroundURL != nil && document.backgroundImage == nil
     }
     
     // MARK: - Zoom Gesture
@@ -214,7 +223,7 @@ struct EmojiArtDocumentView: View {
     
     private func drop(providers: [NSItemProvider], at location: CGPoint) -> Bool {
         var found = providers.loadFirstObject(ofType: URL.self) { url in
-            document.setBackgroundURL(url)
+            document.backgroundURL = url
         }
         if !found {
             found = providers.loadObjects(ofType: String.self, using: { string in
