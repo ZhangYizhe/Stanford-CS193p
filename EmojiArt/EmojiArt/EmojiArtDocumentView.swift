@@ -10,17 +10,26 @@ import SwiftUI
 struct EmojiArtDocumentView: View {
     @ObservedObject var document : EmojiArtDocument
     
+    @State private var choosenPalette : String = ""
+    
     var body: some View {
         VStack{
-            ScrollView(.horizontal) {
-                HStack {
-                    ForEach(EmojiArtDocument.palette.map{ String($0) }, id: \.self) { emoji in
-                        Text(emoji)
-                            .font(.system(size: defaultEmojiSize))
-                            .onDrag{NSItemProvider(object: emoji as NSString)}
+            HStack {
+                PaletteChooser(document: document, choosenPalette: $choosenPalette)
+                ScrollView(.horizontal) {
+                    HStack {
+                        ForEach(choosenPalette.map{ String($0) }, id: \.self) { emoji in
+                            Text(emoji)
+                                .font(.system(size: defaultEmojiSize))
+                                .onDrag{NSItemProvider(object: emoji as NSString)}
+                        }
                     }
                 }
-            }.padding(.horizontal)
+                .layoutPriority(1)
+                .onAppear {
+                    choosenPalette = document.defaultPalette
+                }
+            }
             GeometryReader { geometry in
                 ZStack {
                     Rectangle().foregroundColor(.white).overlay(
@@ -50,6 +59,9 @@ struct EmojiArtDocumentView: View {
                 .gesture(self.panGesture())
                 .gesture(self.zoomGesture())
                 .edgesIgnoringSafeArea([.horizontal, .bottom])
+                .onReceive(self.document.$backgroundImage) { image in
+                    self.zoomToFit(image, to: geometry.size)
+                }
                 .onDrop(of: [.image, .text], isTargeted: nil) { (providers, location) -> Bool in
                     var location = geometry.convert(location, from: .global)
                     location = CGPoint(x: location.x - geometry.size.width / 2, y: location.y - geometry.size.height / 2)
@@ -61,6 +73,9 @@ struct EmojiArtDocumentView: View {
                     GeometryReader { geometry in
                         ZStack {
                             Rectangle()
+                                .cornerRadius(50)
+                                .foregroundColor(.white)
+                                .shadow(color: .gray, radius: 3, x: 0.0, y: 0.0)
                             Button("Delete") {
                                 self.deleteAllSelectEmojis()
                             }
@@ -68,9 +83,6 @@ struct EmojiArtDocumentView: View {
                             .font(Font.system(size: 20))
                         }
                         .frame(width: 130, height: 50)
-                        .cornerRadius(50)
-                        .foregroundColor(.white)
-                        .shadow(color: .gray, radius: 3, x: 0.0, y: 0.0)
                         .position(x: geometry.size.width / 2, y: 45)
                         .opacity(tempSelectEmojiArr.count > 0 ? 1 : 0)
                         .animation(Animation.easeIn(duration: 0.1))
