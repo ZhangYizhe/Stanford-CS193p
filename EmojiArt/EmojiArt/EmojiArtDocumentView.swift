@@ -12,6 +12,11 @@ struct EmojiArtDocumentView: View {
     
     @State private var choosenPalette : String = ""
     
+    init(document: EmojiArtDocument) {
+        self.document = document
+        _choosenPalette = State(wrappedValue: document.defaultPalette)
+    }
+    
     var body: some View {
         VStack{
             HStack {
@@ -26,9 +31,6 @@ struct EmojiArtDocumentView: View {
                     }
                 }
                 .layoutPriority(1)
-                .onAppear {
-                    choosenPalette = document.defaultPalette
-                }
             }
             GeometryReader { geometry in
                 ZStack {
