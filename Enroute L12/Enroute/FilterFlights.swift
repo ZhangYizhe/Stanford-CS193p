@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import MapKit
 
 struct FilterFlights: View {
     @FetchRequest(fetchRequest: Airport.fetchRequest(.all)) var airports: FetchedResults<Airport>
@@ -23,6 +24,17 @@ struct FilterFlights: View {
         _draft = State(wrappedValue: flightSearch.wrappedValue)
     }
     
+    var destination : Binding<MKAnnotation?> {
+        return Binding<MKAnnotation?> {
+            draft.destination
+        } set: { annotation in
+            if let airport = annotation as? Airport {
+                self.draft.destination = airport
+            }
+        }
+
+    }
+    
     var body: some View {
         NavigationView {
             Form {
@@ -31,6 +43,8 @@ struct FilterFlights: View {
                         Text("\(airport.friendlyName)").tag(airport)
                     }
                 }
+                MapView(annotations: airports.sorted(), selection: destination)
+                    .frame(minHeight: 400)
                 Picker("Origin", selection: $draft.origin) {
                     Text("Any").tag(Airport?.none)
                     ForEach(airports.sorted(), id: \.self) { (airport: Airport?) in
